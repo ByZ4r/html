@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Live - EuRo-Star-PVE/PVP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #chat-box {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+        #message-input {
+            width: 80%;
+            padding: 5px;
+        }
+        #send-button {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>EuRo-Star-PVE/PVP Chat</h1>
+
+    <!-- Chatbox -->
+    <div id="chat-box"></div>
+
+    <!-- Input pentru mesaje -->
+    <input type="text" id="message-input" placeholder="Type your message here..." />
+    <button id="send-button">Send</button>
+
+    <label for="language-selector">Choose your language:</label>
+    <select id="language-selector">
+        <option value="en">English</option>
+        <option value="ro">Română</option>
+        <option value="fr">Français</option>
+        <option value="de">Deutsch</option>
+        <option value="es">Español</option>
+        <!-- Adaugă mai multe opțiuni de limbă dacă este necesar -->
+    </select>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        const chatBox = document.getElementById("chat-box");
+        const messageInput = document.getElementById("message-input");
+        const sendButton = document.getElementById("send-button");
+        const languageSelector = document.getElementById("language-selector");
+
+        // Adăuga un mesaj în chat
+        function addMessage(message) {
+            const messageElement = document.createElement("p");
+            messageElement.textContent = message;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Trimite mesajul la server, cu limba selectată
+        sendButton.addEventListener("click", function() {
+            const message = messageInput.value;
+            const selectedLang = languageSelector.value;
+
+            if (message.trim()) {
+                // Trimite mesajul și limba selectată
+                socket.emit("chat message", { message, lang: selectedLang });
+                messageInput.value = ""; 
+            }
+        });
+
+        // Permite trimiterea mesajului și cu Enter
+        messageInput.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                sendButton.click();
+            }
+        });
+
+        // Ascultă mesajele de la server
+        socket.on("chat message", function(msg) {
+            addMessage(msg);
+        });
+    </script>
+</body>
+</html>
